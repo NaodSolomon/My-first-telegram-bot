@@ -5,7 +5,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 import first_app_with_weather_api
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-API_NINJAS_KEY = os.getenv("QUOTE_GENERATOR TOKEN")
+API_NINJAS_KEY = os.getenv("QUOTE_GENERATOR_TOKEN")
 BOT_USERNAME = "@Naods_First_Bot"
 PORT = int(os.environ.get("PORT", 8443))  # Render assigns PORT; default to 8443 if not set
 
