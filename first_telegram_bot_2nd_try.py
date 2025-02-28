@@ -4,8 +4,8 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import first_app_with_weather_api
 
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")#"7720753069:AAFRzhFybKkxlKakaVc9gLR6shyY3MSrt_8"
-API_NINJAS_KEY = os.getenv("QUOTE_GENERATOR TOKEN")#"V1SJNpb1+MVy6u1WBSypNQ==xlgscNskeT0F7s7U"
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+API_NINJAS_KEY = os.getenv("QUOTE_GENERATOR TOKEN")
 BOT_USERNAME = "@Naods_First_Bot"
 
 # Function to fetch a dad joke from icanhazdadjoke
