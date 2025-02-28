@@ -7,6 +7,7 @@ import first_app_with_weather_api
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 API_NINJAS_KEY = os.getenv("QUOTE_GENERATOR TOKEN")
 BOT_USERNAME = "@Naods_First_Bot"
+PORT = int(os.environ.get("PORT", 8443))
 
 # Function to fetch a dad joke from icanhazdadjoke
 def get_joke():
@@ -121,4 +122,4 @@ if __name__ == "__main__":
     app.add_error_handler(error)
 
     print("Polling....")
-    app.run_polling(poll_interval=2)
+    app.run_polling(poll_interval=2, port=PORT)
