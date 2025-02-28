@@ -1,6 +1,7 @@
 import requests
+import os
 
-API_Key = "d5468ece27682dc66b748749ac377e16"
+API_Key = os.getenv("WEATHER_API")#"d5468ece27682dc66b748749ac377e16"
 Base_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 class WeatherApp:
