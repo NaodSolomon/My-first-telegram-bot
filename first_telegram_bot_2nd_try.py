@@ -7,7 +7,7 @@ import first_app_with_weather_api
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 API_NINJAS_KEY = os.getenv("QUOTE_GENERATOR TOKEN")
 BOT_USERNAME = "@Naods_First_Bot"
-PORT = int(os.environ.get("PORT", 5000))
+PORT = int(os.environ.get("PORT", 8443))
 
 # Function to fetch a dad joke from icanhazdadjoke
 def get_joke():
