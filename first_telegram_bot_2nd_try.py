@@ -3,7 +3,14 @@ import os
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import first_app_with_weather_api
+import spacy
+from spacytextblob.spacytextblob import SpacyTextBlob
 
+# Load spaCy model and add sentiment analysis pipeline
+nlp = spacy.load('en_core_web_sm')
+nlp.add_pipe("spacytextblob")
+
+#Environment variables
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 API_NINJAS_KEY = os.getenv("QUOTE_GENERATOR_TOKEN")
 BOT_USERNAME = "@Naods_First_Bot"
@@ -42,12 +49,41 @@ def get_quote(category=""):
             return f"Sorry, I couldn't fetch a quote. Status: {response.status_code}"
     except Exception as e:
         return f"An error occurred: {str(e)}"
+    
+# Sentiment Analysis with spaCy
+def analyze_sentiment(text: str) -> str:
+    doc = nlp(text)
+    polarity = doc._.blob.polarity
+    if polarity > 0.1:
+        return "Positive"
+    elif polarity < -0.1:
+        return "Negative"
+    else:
+        return "Neutral"
+
+# Simple Intent Recognition with spaCy
+def recognize_intent(text: str) -> str:
+    doc = nlp(text.lower().strip())
+    tokens = [token.text for token in doc]
+    if any(word in tokens for word in ["hello", "hi", "hey"]):
+        return "greeting"
+    elif any(word in tokens for word in ["bye", "goodbye", "see you later"]):
+        return "goodbye"
+    elif any(word in tokens for word in ["weather", "temperature", "forecast"]):
+        return "weather"
+    elif any(word in tokens for word in ["joke", "funny", "humor"]):
+        return "joke"
+    elif any(word in tokens for word in ["quote", "inspire", "motivate"]):
+        return "quote"
+    else:
+        return "unknown"
+# Command handlers
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Hello, I am Naod's First Bot, how can I help you?")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("I am Naod's First Bot! Use /quote [category] for a quote (e.g., /quote love).")
+    await update.message.reply_text("Use /quote [category], /joke, or /weather [city]. I also analyze your mood and intent!")
 
 async def generate_quote(update: Update, context: ContextTypes.DEFAULT_TYPE):
     category = " ".join(context.args) if context.args else ""
@@ -72,14 +108,22 @@ async def weather_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Responses
 def response_handler(text: str) -> str:
     text = text.lower().strip()
+    sentiment = analyze_sentiment(text)
+    intent = recognize_intent(text)
     responses = {
-        "hello": "Hello, how are you?",
-        "goodbye": "Goodbye, have a great day!",
-        "how are you": "I am doing well, thank you for asking!",
-        "what is your name": "I am Naod's First Bot, how can I help you?",
-        "what is your purpose": "I am here to help you with anything you need, just ask me!"
+        "greeting": "Hello! How can I assist you today?",
+        "farewell": "Goodbye! Have a great day!",
+        "question": "I'm here to help! What would you like to know?",
+        "unknown": "I'm not sure what you mean. How can I assist?"
     }
-    return responses.get(text, "I am sorry, I do not understand that.")
+    #Modify response based on sentiment
+    base_response = response.get(intent, "I am sorry, I do not understand that.")
+    if sentiment == "Positive":
+        return f"{base_response} You seem happy today!😊"
+    elif sentiment == "Negative":
+        return f"{base_response} Sorry you're feeling down-want a joke to cheer up?😞"
+    else:
+        return base_response
 
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_type = update.message.chat.type
@@ -95,7 +139,7 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         response = response_handler(text)
     
-    print("Bot: ", response)
+    print(f"Bot: {response} (Sentiment: {analyze_sentiment(text)}, Intent: {recognize_intent(text)})")
     await update.message.reply_text(response)
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
