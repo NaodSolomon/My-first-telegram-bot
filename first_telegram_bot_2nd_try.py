@@ -117,7 +117,7 @@ def response_handler(text: str) -> str:
         "unknown": "I'm not sure what you mean. How can I assist?"
     }
     #Modify response based on sentiment
-    base_response = response.get(intent, "I am sorry, I do not understand that.")
+    base_response = responses.get(intent, "I am sorry, I do not understand that.")
     if sentiment == "Positive":
         return f"{base_response} You seem happy today!😊"
     elif sentiment == "Negative":
