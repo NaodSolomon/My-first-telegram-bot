@@ -193,7 +193,7 @@ async def response_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, t
     # Sentiment Modification
     if sentiment == "Positive" and intent not in ["joke", "quote", "weather"]:
         return f"{base_response} You seem happy today!😊"
-    elif sentiment = "Negative" and intent not in ["sad", "joke", "quote", "weather"]:
+    elif sentiment == "Negative" and intent not in ["sad", "joke", "quote", "weather"]:
         return f"{base_response} Sorry you're feeling down.\n Want to hear a joke?😞"
     return base_response
 
