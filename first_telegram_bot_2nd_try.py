@@ -65,18 +65,46 @@ def analyze_sentiment(text: str) -> str:
 def recognize_intent(text: str) -> str:
     doc = nlp(text.lower().strip())
     tokens = [token.text for token in doc]
-    if any(word in tokens for word in ["hello", "hi", "hey"]):
+    print(f"Tokens: {tokens}")  # Debug: See what spaCy tokenized
+    
+    # Check for greetings
+    greeting_keywords = {"hello", "hi", "hey"}
+    if any(token in greeting_keywords for token in tokens):
+        print("Intent detected: greeting")  # Debug
         return "greeting"
-    elif any(word in tokens for word in ["bye", "goodbye", "see you later"]):
-        return "goodbye"
-    elif any(word in tokens for word in ["weather", "temperature", "forecast"]):
+    
+    # Check for farewells
+    farewell_keywords = {"goodbye", "bye", "see you"}
+    if any(token in farewell_keywords for token in tokens):
+        print("Intent detected: farewell")  # Debug
+        return "farewell"
+
+    weather_keyword = {"weather", "temperature", "forecast"}
+    if any(token in weather_keyword for token in tokens):
+        print("Intent detected: weather")  # Debug
         return "weather"
-    elif any(word in tokens for word in ["joke", "funny", "humor"]):
+    
+    joke_keyword = {"joke", "funny", "humor"}
+    if any(token in joke_keyword for token in tokens):
+        print("Intent detected: joke")
         return "joke"
-    elif any(word in tokens for word in ["quote", "inspire", "motivate"]):
+
+    quote_keyword = {"quote", "inspire", "motivate"}
+    if any(token in quote_keyword for token in tokens):
+        print("Intent detected: quote")
         return "quote"
-    else:
-        return "unknown"
+
+    # Check for questions (using POS tagging for Wh-words)
+    for token in doc:
+        print(f"Token: {token.text}, POS: {token.pos_}, Tag: {token.tag_}")  # Debug
+        if token.tag_ == "WP" or token.pos_ == "PRON" and token.text in {"what", "who", "where", "when", "why", "how"}:
+            print("Intent detected: question")  # Debug
+            return "question"
+
+    # Default case
+    print("Intent detected: unknown")  # Debug
+    return "unknown"
+    
 # Command handlers
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
