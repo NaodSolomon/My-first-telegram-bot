@@ -79,21 +79,34 @@ def recognize_intent(text: str) -> str:
         print("Intent detected: farewell")  # Debug
         return "farewell"
 
+    # Check for Weather
     weather_keyword = {"weather", "temperature", "forecast"}
     if any(token in weather_keyword for token in tokens):
         print("Intent detected: weather")  # Debug
         return "weather"
     
+    # Check for Joke
     joke_keyword = {"joke", "funny", "humor"}
     if any(token in joke_keyword for token in tokens):
         print("Intent detected: joke")
         return "joke"
 
+    # Check for Quote
     quote_keyword = {"quote", "inspire", "motivate"}
     if any(token in quote_keyword for token in tokens):
         print("Intent detected: quote")
         return "quote"
 
+    # Sadness or emotional state (for better sentiment handling)
+    if any(token in {"sad", "down", "unhappy"} for token in tokens):
+        return "sad"
+
+    # Yes/No for follow-up (e.g., "want a joke?")
+    if any(token in {"yes", "yeah", "sure"} for token in tokens):
+        return "yes"
+    if any(token in {"no", "nah", "nope"} for token in tokens):
+        return "no"
+    
     # Check for questions (using POS tagging for Wh-words)
     for token in doc:
         print(f"Token: {token.text}, POS: {token.pos_}, Tag: {token.tag_}")  # Debug
@@ -134,24 +147,55 @@ async def weather_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(weather)
     
 # Responses
-def response_handler(text: str) -> str:
+async def response_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, text: str) -> str:
     text = text.lower().strip()
     sentiment = analyze_sentiment(text)
     intent = recognize_intent(text)
+    user_data = context.user_data # for state tracking
+
+    # Handle previous context(e.g., waiting for city or yes/no)
+    if "waiting_for" in user_data:
+        if user_data["waiting_for"] == "city":
+            city = text.stip()
+            weather = first_app_with_weather_api.WeatherApp.get_weather(city)
+            del user_data["waiting_for"]
+            return weather
+        elif user_data["waiting_for"] == "joke_confirmation":
+            if intent == "yes":
+                del user_data["waiting_for"]
+                return get_joke()
+            elif intent == "no":
+                del user_data["waiting_for"]
+                return "Okay, let me know how can I help!"
+            else:
+                return "Please say 'yes' or 'no' Want a joke to cheer up?"
+    
+    # Base responses
     responses = {
         "greeting": "Hello! How can I assist you today?",
         "farewell": "Goodbye! Have a great day!",
         "question": "I'm here to help! What would you like to know?",
+        "joke": get_joke(),
+        "quote": get_quote(),
+        "weather": "Which city would you like the weather for?",
+        "sad": "Sorry to hear you're feeling down. Want a joke to cheer up?",
         "unknown": "I'm not sure what you mean. How can I assist?"
     }
-    #Modify response based on sentiment
-    base_response = responses.get(intent, "I am sorry, I do not understand that.")
-    if sentiment == "Positive":
+
+    base_response = responses.get(intent, responses["unknown"])
+
+    # State transitions
+    if intent == "weather":
+        user_data["waiting_for"] = city
+    elif intent == "sad" and sentiment == "Negative":
+        user_data["waiting_for"] = "joke_confirmation"
+
+    # Sentiment Modification
+    if sentiment == "Positive" and intent not in ["joke", "quote", "weather"]:
         return f"{base_response} You seem happy today!😊"
-    elif sentiment == "Negative":
-        return f"{base_response} Sorry you're feeling down-want a joke to cheer up?😞"
-    else:
-        return base_response
+    elif sentiment = "Negative" and intent not in ["sad", "joke", "quote", "weather"]:
+        return f"{base_response} Sorry you're feeling down.\n Want to hear a joke?😞"
+    return base_response
 
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_type = update.message.chat.type
