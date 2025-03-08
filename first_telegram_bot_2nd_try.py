@@ -197,7 +197,7 @@ if __name__ == "__main__":
     app.add_error_handler(error)
 
     # Webhook configuration
-    webhook_url = f"https://My-first-telegram-bot-4.onrender.com/{TOKEN}"
+    webhook_url = f"https://my-first-telegram-bot-4.onrender.com/{TOKEN}"
     print(f"Setting webhook to: {webhook_url}")
 
     # Start the bot with webhook
