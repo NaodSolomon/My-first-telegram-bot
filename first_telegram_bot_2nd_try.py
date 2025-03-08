@@ -104,7 +104,7 @@ def recognize_intent(text: str) -> str:
     # Default case
     print("Intent detected: unknown")  # Debug
     return "unknown"
-    
+
 # Command handlers
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     app.add_error_handler(error)
 
     # Webhook configuration
-    webhook_url = f"https://My-first-telegram-bot-2.onrender.com/{TOKEN}"
+    webhook_url = f"https://My-first-telegram-bot-4.onrender.com/{TOKEN}"
     print(f"Setting webhook to: {webhook_url}")
 
     # Start the bot with webhook
