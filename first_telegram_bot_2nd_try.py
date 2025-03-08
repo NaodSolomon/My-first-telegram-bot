@@ -96,6 +96,9 @@ def recognize_intent(text: str) -> str:
     if any(token in quote_keyword for token in tokens):
         print("Intent detected: quote")
         return "quote"
+    if any(token in {"sad", "down", "unhappy"} for token in tokens):
+        print("Intent detected: sad")
+        return "sad"
 
     # Yes/No for follow-up (e.g., "want a joke?")
     if any(token in {"yes", "yeah", "sure"} for token in tokens):
@@ -111,7 +114,7 @@ def recognize_intent(text: str) -> str:
             return "question"
 
     # Emotional statement intent
-    emotional_keywords = {"happy", "sad", "down", "unhappy", "neutral", "okay", "good", "bad", "feeling"}
+    emotional_keywords = {"happy", "neutral", "okay", "good", "bad", "feeling"}
     if any(token in emotional_keywords for token in tokens):
         print("Intent detected: statement")
         return "statement"
@@ -181,7 +184,7 @@ async def response_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, t
         "quote": get_quote(),
         "weather": "Which city would you like the weather for?",
         "sad": "Sorry to hear you're feeling down. Want a joke to cheer up?",
-        "statement": "Thanks for sharing how you feel!",
+        "statement": "Thanks for sharing how you feel!\n",
         "unknown": "I'm not sure what you mean. How can I assist?"
     }
 
@@ -192,6 +195,7 @@ async def response_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, t
         user_data["waiting_for"] = "city"
     elif intent == "sad" and sentiment == "Negative":
         user_data["waiting_for"] = "joke_confirmation"
+        return base_response 
 
     # Sentiment Modification
     if sentiment == "Positive" and intent not in ["joke", "quote", "weather"]:
