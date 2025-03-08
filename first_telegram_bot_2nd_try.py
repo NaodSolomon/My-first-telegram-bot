@@ -205,11 +205,11 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if message_type == "group":
         if BOT_USERNAME in text:
             new_text = text.replace(BOT_USERNAME, "").strip()
-            response = await response_handler(new_text)
+            response = await response_handler(update, context, new_text)
         else:
             return
     else:
-        response = await response_handler(text)
+        response = await response_handler(update, context, text)
     
     print(f"Bot: {response} (Sentiment: {analyze_sentiment(text)}, Intent: {recognize_intent(text)})")
     await update.message.reply_text(response)
