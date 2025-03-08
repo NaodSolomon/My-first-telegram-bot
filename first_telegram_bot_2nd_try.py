@@ -97,10 +97,6 @@ def recognize_intent(text: str) -> str:
         print("Intent detected: quote")
         return "quote"
 
-    # Sadness or emotional state (for better sentiment handling)
-    if any(token in {"sad", "down", "unhappy"} for token in tokens):
-        return "sad"
-
     # Yes/No for follow-up (e.g., "want a joke?")
     if any(token in {"yes", "yeah", "sure"} for token in tokens):
         return "yes"
@@ -114,6 +110,12 @@ def recognize_intent(text: str) -> str:
             print("Intent detected: question")  # Debug
             return "question"
 
+    # Emotional statement intent
+    emotional_keywords = {"happy", "sad", "down", "unhappy", "neutral", "okay", "good", "bad", "feeling"}
+    if any(token in emotional_keywords for token in tokens):
+        print("Intent detected: statement")
+        return "statement"
+    
     # Default case
     print("Intent detected: unknown")  # Debug
     return "unknown"
@@ -179,6 +181,7 @@ async def response_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, t
         "quote": get_quote(),
         "weather": "Which city would you like the weather for?",
         "sad": "Sorry to hear you're feeling down. Want a joke to cheer up?",
+        "statement": "Thanks for sharing how you feel!",
         "unknown": "I'm not sure what you mean. How can I assist?"
     }
 
@@ -195,6 +198,8 @@ async def response_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, t
         return f"{base_response} You seem happy today!😊"
     elif sentiment == "Negative" and intent not in ["sad", "joke", "quote", "weather"]:
         return f"{base_response} Sorry you're feeling down.\n Want to hear a joke?😞"
+    elif sentiment == "Neutral" and intent == "statement":
+        return f"{base_response} Feeling neutral, huh? Anything I can do?"
     return base_response
 
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
