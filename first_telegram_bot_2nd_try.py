@@ -156,7 +156,7 @@ async def response_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, t
     # Handle previous context(e.g., waiting for city or yes/no)
     if "waiting_for" in user_data:
         if user_data["waiting_for"] == "city":
-            city = text.stip()
+            city = text.strip()
             weather = first_app_with_weather_api.WeatherApp.get_weather(city)
             del user_data["waiting_for"]
             return weather
@@ -186,7 +186,7 @@ async def response_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, t
 
     # State transitions
     if intent == "weather":
-        user_data["waiting_for"] = city
+        user_data["waiting_for"] = "city"
     elif intent == "sad" and sentiment == "Negative":
         user_data["waiting_for"] = "joke_confirmation"
 
@@ -205,11 +205,11 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if message_type == "group":
         if BOT_USERNAME in text:
             new_text = text.replace(BOT_USERNAME, "").strip()
-            response = response_handler(new_text)
+            response = await response_handler(new_text)
         else:
             return
     else:
-        response = response_handler(text)
+        response = await response_handler(text)
     
     print(f"Bot: {response} (Sentiment: {analyze_sentiment(text)}, Intent: {recognize_intent(text)})")
     await update.message.reply_text(response)
